@@ -11,39 +11,39 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-//@RestController
-public class TodoResource {
+@RestController
+public class TodoJpaResource {
 	
-	private TodoService service;
+	private TodoRepository todoRepository;
 	
-	public TodoResource(TodoService service) {
-		this.service=service;
+	public TodoJpaResource(TodoRepository todoRepository) {
+		this.todoRepository=todoRepository;
 	}
 	
 	@GetMapping("users/{username}/todos")
 	public List<Todo> retrieveTodos(@PathVariable String username){
 		
-		return  service.findByUsername(username);
+		return  todoRepository.findByUsername(username);
 		
 	}
 	
 	@PostMapping("users/{username}/todos")
 	public Todo createTodo(@PathVariable String username,@RequestBody Todo todo){
 		
-		return service.addTodo(todo.getUsername(), todo.getDescription(), todo.getTargetDate(), false);
+		return todoRepository.save(todo);
 		
 	}
 	
 	@GetMapping("users/{username}/todos/{id}")
 	public Todo retrieveTodo(@PathVariable String username, @PathVariable int id){
-		return  service.findById(id);
+		return  todoRepository.findById(id).get();
 		
 	}
 	
 	@DeleteMapping("users/{username}/todos/{id}")
 	public ResponseEntity<Void>  deleteTodo(@PathVariable String username, @PathVariable int id){
 
-       service.deleteById(id);
+		todoRepository.deleteById(id);
        
        return ResponseEntity.noContent().build();
 		
@@ -52,7 +52,7 @@ public class TodoResource {
 	@PutMapping("users/{username}/todos/{id}")
 	public Todo updateTodo(@PathVariable String username, @PathVariable int id, @RequestBody Todo todo){
 
-       Todo findTodo = service.findById(id);
+       Todo findTodo = todoRepository.findById(id).get();
        
        
        if(findTodo==null) {
@@ -60,7 +60,7 @@ public class TodoResource {
     	   return null;
        }
     	  
-       service.updateTodo(todo);
+       todoRepository.save(todo);
        return todo;
 		
 	}
